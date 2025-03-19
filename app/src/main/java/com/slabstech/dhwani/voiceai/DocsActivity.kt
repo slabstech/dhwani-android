@@ -78,8 +78,6 @@ class DocsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_docs)
 
-        checkAuthentication()
-
         try {
             historyRecyclerView = findViewById(R.id.historyRecyclerView)
             audioLevelBar = findViewById(R.id.audioLevelBar)
@@ -148,14 +146,6 @@ class DocsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("DocsActivity", "Crash in onCreate: ${e.message}", e)
             Toast.makeText(this, "Initialization failed: ${e.message}", Toast.LENGTH_LONG).show()
-            finish()
-        }
-    }
-
-    private fun checkAuthentication() {
-        val token = prefs.getString("access_token", null)
-        if (token == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }
@@ -263,7 +253,6 @@ class DocsActivity : AppCompatActivity() {
     }
 
     private fun getImageDescriptionAndTranslation(imageFile: File, query: String) {
-        val token = prefs.getString("access_token", null) ?: return
         val languageMap = mapOf(
             "english" to "eng_Latn",
             "hindi" to "hin_Deva",
@@ -286,8 +275,7 @@ class DocsActivity : AppCompatActivity() {
                     file = filePart,
                     query = queryPart,
                     srcLang = "eng_Latn",
-                    tgtLang = tgtLang,
-                    token = "Bearer $token"
+                    tgtLang = tgtLang
                 )
                 val description = response.answer
                 val timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -387,17 +375,11 @@ class DocsActivity : AppCompatActivity() {
                 true
             }
             R.id.action_logout -> {
-                logout()
+                Toast.makeText(this, "Logout not applicable", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun logout() {
-        prefs.edit().remove("access_token").apply()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     private fun showHistoryDialog() {

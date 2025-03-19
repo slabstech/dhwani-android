@@ -12,6 +12,7 @@ import com.slabstech.dhwani.voiceai.Message
 import com.slabstech.dhwani.voiceai.MessageAdapter
 import com.slabstech.dhwani.voiceai.R
 import com.slabstech.dhwani.voiceai.RetrofitClient
+import com.slabstech.dhwani.voiceai.TTSRequest
 import com.slabstech.dhwani.voiceai.TranslationRequest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -31,7 +32,6 @@ object SpeechUtils {
     ) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         if (!prefs.getBoolean("tts_enabled", false)) return
-        val token = prefs.getString("access_token", null) ?: return
         val voice = prefs.getString(
             "tts_voice",
             "Anu speaks with a high pitch at a normal pace in a clear, close-sounding environment. Her neutral tone is captured with excellent audio quality."
@@ -41,15 +41,17 @@ object SpeechUtils {
         scope.launch {
             ttsProgressBarVisibility(true)
             try {
-                val response = RetrofitClient.apiService(context).textToSpeech(
+                val ttsRequest = TTSRequest(
                     input = text,
                     voice = voice,
                     model = "ai4bharat/indic-parler-tts",
-                    responseFormat = "mp3",
-                    speed = 1.0,
-                    token = "Bearer $token"
+                    response_format = "mp3",
+                    speed = 1.0
                 )
+                Log.d("SpeechUtils", "TTS Request: $ttsRequest")
+                val response = RetrofitClient.apiService(context).textToSpeech(ttsRequest)
                 val audioBytes = response.byteStream().readBytes()
+                Log.d("SpeechUtils", "TTS Response: byte size=${audioBytes.size}")
                 if (audioBytes.isNotEmpty()) {
                     val audioFile = File(context.cacheDir, "temp_tts_audio_${System.currentTimeMillis()}.mp3")
                     FileOutputStream(audioFile).use { fos -> fos.write(audioBytes) }
@@ -94,14 +96,10 @@ object SpeechUtils {
         onSuccess: (String) -> Unit,
         onError: (Exception) -> Unit
     ) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val token = prefs.getString("access_token", null) ?: return
-
         scope.launch {
             try {
                 val response = RetrofitClient.apiService(context).translate(
-                    TranslationRequest(sentences, srcLang, tgtLang),
-                    "Bearer $token"
+                    TranslationRequest(sentences, srcLang, tgtLang)
                 )
                 val translatedText = response.translations.joinToString("\n")
                 onSuccess(translatedText)

@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <!-- For Android 13 -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
         android:maxSdkVersion="33" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,18 +18,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DhwaniVoiceAI.Light">
 
+        <!-- Removed LoginActivity as launcher -->
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
+
         <activity android:name=".DhwaniActivity" />
+
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
             android:name=".SettingsActivity"
@@ -40,7 +37,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".AnswerActivity" />
+
+        <!-- Set AnswerActivity as the new launcher -->
+        <activity
+            android:name=".AnswerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".TranslateActivity" />
         <activity android:name=".DocsActivity" />
     </application>

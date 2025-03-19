@@ -35,7 +35,6 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -78,8 +77,6 @@ class TranslateActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_translate)
-
-        checkAuthentication()
 
         try {
             historyRecyclerView = findViewById(R.id.historyRecyclerView)
@@ -201,14 +198,6 @@ class TranslateActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAuthentication() {
-        val token = prefs.getString("access_token", null)
-        if (token == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         menu.findItem(R.id.action_auto_scroll)?.isChecked = true
@@ -257,17 +246,11 @@ class TranslateActivity : AppCompatActivity() {
                 true
             }
             R.id.action_logout -> {
-                logout()
+                Toast.makeText(this, "Logout not applicable", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun logout() {
-        prefs.edit().remove("access_token").apply()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     override fun onResume() {
@@ -445,7 +428,6 @@ class TranslateActivity : AppCompatActivity() {
     }
 
     private fun sendAudioToApi(audioFile: File) {
-        val token = prefs.getString("access_token", null) ?: return
         val language = prefs.getString("language", "kannada") ?: "kannada"
 
         val requestFile = audioFile.asRequestBody("audio/x-wav".toMediaType())
@@ -454,7 +436,7 @@ class TranslateActivity : AppCompatActivity() {
         lifecycleScope.launch {
             progressBar.visibility = View.VISIBLE
             try {
-                val response = RetrofitClient.apiService(this@TranslateActivity).transcribeAudio(filePart, language, "Bearer $token")
+                val response = RetrofitClient.transcriptionApiService(this@TranslateActivity).transcribeAudio(filePart, language)
                 val voiceQueryText = response.text
                 val timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 if (voiceQueryText.isNotEmpty()) {
@@ -477,6 +459,7 @@ class TranslateActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun scrollToLatestMessage() {
         val autoScrollEnabled = toolbar.menu.findItem(R.id.action_auto_scroll)?.isChecked ?: false
         if (autoScrollEnabled && messageList.isNotEmpty()) {
@@ -490,7 +473,6 @@ class TranslateActivity : AppCompatActivity() {
     }
 
     private fun getTranslationResponse(input: String) {
-        val token = prefs.getString("access_token", null) ?: return
         val srcLang = "kan_Knda" // Hardcoded for now; can be made configurable
         val tgtLang = resources.getStringArray(R.array.target_language_codes)[targetLanguageSpinner.selectedItemPosition]
 
@@ -522,7 +504,7 @@ class TranslateActivity : AppCompatActivity() {
         lifecycleScope.launch {
             progressBar.visibility = View.VISIBLE
             try {
-                val response = RetrofitClient.apiService(this@TranslateActivity).translate(translationRequest, "Bearer $token")
+                val response = RetrofitClient.apiService(this@TranslateActivity).translate(translationRequest)
                 val translatedText = response.translations.joinToString("\n")
                 val timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 val message = Message("Translation: $translatedText", timestamp, false)

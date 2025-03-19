@@ -35,7 +35,6 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -77,8 +76,6 @@ class AnswerActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_answer)
-
-        checkAuthentication()
 
         try {
             historyRecyclerView = findViewById(R.id.historyRecyclerView)
@@ -200,14 +197,6 @@ class AnswerActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAuthentication() {
-        val token = prefs.getString("access_token", null)
-        if (token == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         menu.findItem(R.id.action_auto_scroll)?.isChecked = true
@@ -244,17 +233,11 @@ class AnswerActivity : AppCompatActivity() {
                 true
             }
             R.id.action_logout -> {
-                logout()
+                Toast.makeText(this, "Logout not applicable", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun logout() {
-        prefs.edit().remove("access_token").apply()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     override fun onResume() {
@@ -433,7 +416,6 @@ class AnswerActivity : AppCompatActivity() {
     }
 
     private fun sendAudioToApi(audioFile: File) {
-        val token = prefs.getString("access_token", null) ?: return
         val language = prefs.getString("language", "kannada") ?: "kannada"
 
         val requestFile = audioFile.asRequestBody("audio/x-wav".toMediaType())
@@ -442,7 +424,7 @@ class AnswerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             progressBar.visibility = View.VISIBLE
             try {
-                val response = RetrofitClient.apiService(this@AnswerActivity).transcribeAudio(filePart, language, "Bearer $token")
+                val response = RetrofitClient.transcriptionApiService(this@AnswerActivity).transcribeAudio(filePart, language)
                 val voiceQueryText = response.text
                 val timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 if (voiceQueryText.isNotEmpty()) {
@@ -467,7 +449,6 @@ class AnswerActivity : AppCompatActivity() {
     }
 
     private fun getChatResponse(prompt: String) {
-        val token = prefs.getString("access_token", null) ?: return
         val selectedLanguage = prefs.getString("language", "kannada") ?: "kannada"
         val languageMap = mapOf(
             "english" to "eng_Latn",
@@ -485,7 +466,7 @@ class AnswerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             progressBar.visibility = View.VISIBLE
             try {
-                val response = RetrofitClient.apiService(this@AnswerActivity).chat(chatRequest, "Bearer $token")
+                val response = RetrofitClient.apiService(this@AnswerActivity).chat(chatRequest)
                 val answerText = response.response
                 val timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 val message = Message("Answer: $answerText", timestamp, false)

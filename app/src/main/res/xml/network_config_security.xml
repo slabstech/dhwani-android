@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Define the domain for your server -->
+    <domain-config>
+        <domain includeSubdomains="true">https://slabstech-dhwani-server.hf.space</domain>
+        <!-- Enforce HTTPS by default; no cleartext allowed unless explicitly needed -->
+    </domain-config>
+
+
+</network-security-config>

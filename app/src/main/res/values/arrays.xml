@@ -6,6 +6,10 @@
         <item>Tamil</item>
         <item>Malayalam</item>
         <item>Telugu</item>
+        <item>English</item>
+        <item>German</item>
+        <item>French</item>
+        <item>Dutch</item>
     </string-array>
     <string-array name="language_values">
         <item>kannada</item>
@@ -13,6 +17,10 @@
         <item>tamil</item>
         <item>malayalam</item>
         <item>telugu</item>
+        <item>English</item>
+        <item>German</item>
+        <item>French</item>
+        <item>Dutch</item>
     </string-array>
     <string-array name="tts_voice_options">
         <item>Kannada Female</item>
@@ -31,6 +39,10 @@
             <item>Tamil</item>
             <item>Malayalam</item>
             <item>Telugu</item>
+            <item>English</item>
+            <item>German</item>
+            <item>French</item>
+            <item>Dutch</item>
         </string-array>
         <string-array name="target_language_codes">
             <item>eng_Latn</item>

@@ -31,6 +31,7 @@ data class TranslationRequest(val sentences: List<String>, val src_lang: String,
 data class TranslationResponse(val translations: List<String>)
 data class VisualQueryRequest(val query: String, val src_lang: String, val tgt_lang: String)
 data class VisualQueryResponse(val answer: String)
+data class ExtractTextResponse(val page_content: String)
 
 interface ApiService {
     @POST("v1/token")
@@ -96,9 +97,17 @@ interface ApiService {
 
     @POST("v1/refresh")
     suspend fun refreshToken(@Header("Authorization") token: String): TokenResponse
+
+    @Multipart
+    @POST("v1/extract-text")
+    suspend fun extractText(
+        @Part file: MultipartBody.Part,
+        @Query("page_number") pageNumber: Int,
+        @Header("Authorization") token: String,
+        @Header("X-Session-Key") sessionKey: String
+    ): ExtractTextResponse
 }
 
-// TODO - Update base url - Dhwani API server
 object RetrofitClient {
     private const val BASE_URL_DEFAULT = "https://example.com/"
     private const val GCM_TAG_LENGTH = 16
@@ -163,9 +172,9 @@ object RetrofitClient {
         return OkHttpClient.Builder()
             .authenticator(authenticator)
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 

@@ -27,7 +27,7 @@ object NavigationUtils {
                         Log.d(TAG, "Already on VoiceDetectionActivity, no action needed")
                     }
                     true
-                }
+                }/* TODO - add translate as menuView
                 R.id.nav_translate -> {
                     if (currentItemId != R.id.nav_translate) {
                         Log.d(TAG, "Switching to TranslateActivity")
@@ -39,7 +39,7 @@ object NavigationUtils {
                         Log.d(TAG, "Already on TranslateActivity, no action needed")
                     }
                     true
-                }
+                }*/
                 R.id.nav_answer -> {
                     if (currentItemId != R.id.nav_answer) {
                         Log.d(TAG, "Switching to AnswerActivity")

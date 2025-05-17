@@ -2,19 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_voice"
-        android:title="Dhwani" />
+        android:title="dwani.ai" />
     <item
         android:id="@+id/nav_answer"
         android:icon="@android:drawable/ic_menu_help"
-        android:title="Answer"/>
+        android:title="answer"/>
+    <!-- TODO - add Translate as menu view
     <item
         android:id="@+id/nav_translate"
         android:icon="@android:drawable/ic_menu_search"
-        android:title="Translate"/>
+        android:title="translate"/>
+        -->
     <item
         android:id="@+id/nav_docs"
         android:icon="@android:drawable/ic_menu_gallery"
-        android:title="Docs"/>
+        android:title="docs"/>
 
 
 </menu>

@@ -18,6 +18,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.slabstech.dhwani.voiceai.utils.SpeechUtils
@@ -32,6 +33,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfReader
+import com.itextpdf.kernel.pdf.PdfWriter
 
 class DocsActivity : MessageActivity() {
 
@@ -113,19 +117,26 @@ class DocsActivity : MessageActivity() {
                             getVisualQueryResponse(defaultQuery, encryptedFile)
                         }
                     } else if (isPdf) {
-                        val fileBytes = file.readBytes()
-                        val encryptedFileBytes = RetrofitClient.encryptAudio(fileBytes, sessionKey)
-                        val encryptedFile = File(cacheDir, "encrypted_$fileName")
-                        FileOutputStream(encryptedFile).use { it.write(encryptedFileBytes) }
+                        // Get max page limit from preferences (default to 1)
+                        val prefs = PreferenceManager.getDefaultSharedPreferences(this@DocsActivity)
+                        val maxPages = prefs.getInt("pdf_max_pages", 3) // Options: 1 or 3
+                        val processedFile = processPdfPages(file, maxPages)
 
                         withContext(Dispatchers.Main) {
-                            val defaultQuery = "Extracted text from PDF"
+                            // Show Toast with max pages
+                            Toast.makeText(
+                                this@DocsActivity,
+                                "Summarizing up to $maxPages page(s)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            val defaultQuery = "Summarize the PDF"
                             val timestamp = DateUtils.getCurrentTimestamp()
                             val message = Message(defaultQuery, timestamp, true, uri)
                             messageList.add(message)
                             messageAdapter.notifyItemInserted(messageList.size - 1)
                             scrollToLatestMessage()
-                            getPdfTextExtractionResponse(encryptedFile, 1) // Default to page 1
+                            getPdfSummaryResponse(processedFile)
                         }
                     } else {
                         withContext(Dispatchers.Main) {
@@ -143,6 +154,32 @@ class DocsActivity : MessageActivity() {
                     progressBar.visibility = View.GONE
                 }
             }
+        }
+    }
+
+    private fun processPdfPages(inputFile: File, maxPages: Int): File {
+        try {
+            val reader = PdfReader(inputFile)
+            val srcDoc = PdfDocument(reader)
+            val totalPages = srcDoc.numberOfPages
+            val pagesToProcess = minOf(maxPages, totalPages)
+
+            val outputFile = File(cacheDir, "processed_${inputFile.name}")
+            val writer = PdfWriter(outputFile)
+            val destDoc = PdfDocument(writer)
+
+            for (i in 1..pagesToProcess) {
+                destDoc.addPage(srcDoc.getPage(i).copyTo(destDoc))
+            }
+
+            destDoc.close()
+            srcDoc.close()
+            reader.close()
+
+            return outputFile
+        } catch (e: Exception) {
+            Log.e("DocsActivity", "PDF page processing failed: ${e.message}", e)
+            throw e
         }
     }
 
@@ -272,8 +309,7 @@ class DocsActivity : MessageActivity() {
         }
     }
 
-    private fun getPdfTextExtractionResponse(file: File, pageNumber: Int) {
-        val token = AuthManager.getToken(this) ?: return
+    private fun getPdfSummaryResponse(file: File) {
         val selectedLanguage = prefs.getString("language", "kannada") ?: "kannada"
         val languageMap = mapOf(
             "english" to "eng_Latn",
@@ -291,49 +327,54 @@ class DocsActivity : MessageActivity() {
             "russian" to "rus_Cyrl",
             "polish" to "pol_Latn"
         )
-        val tgtLang = languageMap[selectedLanguage] ?: "kan_Knda"
+        val srcLang = languageMap[selectedLanguage] ?: "kan_Knda"
+        val tgtLang = srcLang
+        val prompt = "Summarize the document in 3 sentences"
 
         lifecycleScope.launch {
-            ApiUtils.performApiCall(
-                context = this@DocsActivity,
-                progressBar = progressBar,
-                apiCall = {
-                    val requestFile = file.asRequestBody("application/pdf".toMediaType())
-                    val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
-                    val cleanSessionKey = Base64.encodeToString(sessionKey, Base64.NO_WRAP)
-                    RetrofitClient.apiService(this@DocsActivity).extractText(
-                        filePart,
-                        pageNumber,
-                        "Bearer $token",
-                        cleanSessionKey
-                    )
-                },
-                onSuccess = { response ->
-                    val extractedText = response.page_content
-                    val timestamp = DateUtils.getCurrentTimestamp()
-                    val message = Message("Extracted Text: $extractedText", timestamp, false)
-                    messageList.add(message)
-                    messageAdapter.notifyItemInserted(messageList.size - 1)
-                    scrollToLatestMessage()
+            try {
+                progressBar.visibility = View.VISIBLE
+                val requestFile = file.asRequestBody("application/pdf".toMediaType())
+                val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                val srcLangBody = srcLang.toRequestBody("text/plain".toMediaType())
+                val tgtLangBody = tgtLang.toRequestBody("text/plain".toMediaType())
+                val promptBody = prompt.toRequestBody("text/plain".toMediaType())
 
-                    val encryptedExtractedText = RetrofitClient.encryptText(extractedText, sessionKey)
-                    SpeechUtils.textToSpeech(
-                        context = this@DocsActivity,
-                        scope = lifecycleScope,
-                        text = encryptedExtractedText,
-                        message = message,
-                        recyclerView = historyRecyclerView,
-                        adapter = messageAdapter,
-                        ttsProgressBarVisibility = { visible -> ttsProgressBar.visibility = if (visible) View.VISIBLE else View.GONE },
-                        srcLang = tgtLang,
-                        sessionKey = sessionKey
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.summaryApiService().summarizeDocument(
+                        filePart,
+                        srcLangBody,
+                        tgtLangBody,
+                        promptBody
                     )
-                },
-                onError = { e ->
-                    Log.e("DocsActivity", "PDF text extraction failed: ${e.message}", e)
-                    Toast.makeText(this@DocsActivity, "PDF text extraction failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
-            )
+
+                val summaryText = response.summary
+                val timestamp = DateUtils.getCurrentTimestamp()
+                val message = Message("Summary: $summaryText", timestamp, false)
+                messageList.add(message)
+                messageAdapter.notifyItemInserted(messageList.size - 1)
+                scrollToLatestMessage()
+
+                // Encrypt the summary text for TTS
+                val encryptedSummaryText = RetrofitClient.encryptText(summaryText, sessionKey)
+                SpeechUtils.textToSpeech(
+                    context = this@DocsActivity,
+                    scope = lifecycleScope,
+                    text = encryptedSummaryText,
+                    message = message,
+                    recyclerView = historyRecyclerView,
+                    adapter = messageAdapter,
+                    ttsProgressBarVisibility = { visible -> ttsProgressBar.visibility = if (visible) View.VISIBLE else View.GONE },
+                    srcLang = tgtLang,
+                    sessionKey = sessionKey
+                )
+            } catch (e: Exception) {
+                Log.e("DocsActivity", "PDF summarization failed: ${e.message}", e)
+                Toast.makeText(this@DocsActivity, "PDF summarization failed: ${e.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
         }
     }
 

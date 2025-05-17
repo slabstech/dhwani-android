@@ -64,7 +64,7 @@ class TranslateActivity : MessageActivity() {
 
         setSupportActionBar(toolbar)
         setupMessageList()
-        setupBottomNavigation(R.id.nav_translate)
+        //setupBottomNavigation(R.id.nav_translate)
 
         if (!prefs.contains(AUTO_PLAY_KEY)) {
             prefs.edit().putBoolean(AUTO_PLAY_KEY, true).apply()

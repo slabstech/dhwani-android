@@ -15,14 +15,6 @@
         android:title="Clear"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/action_repeat"
-        android:title="Repeat"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_share"
-        android:title="Share"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/action_target_language"
         android:title="Target Language"
         app:actionLayout="@layout/spinner_action_view"

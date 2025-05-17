@@ -25,11 +25,11 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, AnswerActivity::class.java))
                     finish() // Finish MainActivity to prevent back navigation
                     true
-                }
+                }/* TODO- add translate as menuView
                 R.id.nav_translate -> {
                     startActivity(Intent(this, TranslateActivity::class.java))
                     true
-                }
+                }*/
                 R.id.nav_docs -> {
                     startActivity(Intent(this, DocsActivity::class.java))
                     true

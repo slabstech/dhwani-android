@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Dhwani Voice AI - Translate"
+            app:title="dwani.ai - translate"
             app:titleTextColor="#FFFFFF"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
     </com.google.android.material.appbar.AppBarLayout>

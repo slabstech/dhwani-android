@@ -27,7 +27,7 @@
         <EditTextPreference
             android:key="api_endpoint"
             android:title="API Endpoint"
-            android:defaultValue="https://example.com"
+            android:defaultValue="https://dwani-dwani-server.hf.space/"
             android:inputType="textUri"
             android:summary="Set the URL for the API"/>
 
@@ -38,7 +38,5 @@
         android:title="Dark Theme"
         android:defaultValue="false"
         android:summary="Enable dark mode"/>
-
-
 
 </PreferenceScreen>

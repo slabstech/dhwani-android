@@ -2,82 +2,77 @@
 <resources>
     <string-array name="language_names">
         <item>Kannada</item>
-        <!--
+
         <item>Hindi</item>
         <item>Tamil</item>
-        <item>Malayalam</item>
-        <item>Telugu</item>
-        <item>English</item>
-        <item>German</item>
-        <item>French</item>
-        <item>Dutch</item>
-        <item>Spanish</item>
-        <item>Italian</item>
-        <item>Portuguese</item>
-        <item>Russian</item>
-        <item>Polish</item>
-        -->
+        <!--
+<item>Malayalam</item>
+<item>Telugu</item>
+<item>English</item>
+<item>German</item>
+<item>French</item>
+<item>Dutch</item>
+<item>Spanish</item>
+<item>Italian</item>
+<item>Portuguese</item>
+<item>Russian</item>
+<item>Polish</item>
+-->
     </string-array>
     <string-array name="language_values">
-        <!--
         <item>kannada</item>
         <item>hindi</item>
         <item>tamil</item>
-        <item>malayalam</item>
-        <item>telugu</item>
-        <item>english</item>
-        <item>german</item>
-        <item>french</item>
-        <item>dutch</item>
-        <item>spanish</item>
-        <item>italian</item>
-        <item>portuguese</item>
-        <item>russian</item>
-        <item>polish</item>
-        -->
-    </string-array>
-    <string-array name="tts_voice_options">
-        <item>Kannada Female</item>
-        <item>Kannada Male</item>
-    </string-array>
-    <string-array name="tts_voice_values">
-        <item>Anu speaks with a high pitch at a normal pace in a clear, close-sounding environment. Her neutral tone is captured with excellent audio quality.</item>
-        <item>Suresh speaks at a moderate pace with a slightly monotone tone. The recording is clear, with a close sound and only minimal ambient noise.</item>
+        <!--
+<item>malayalam</item>
+<item>telugu</item>
+<item>english</item>
+<item>german</item>
+<item>french</item>
+<item>dutch</item>
+<item>spanish</item>
+<item>italian</item>
+<item>portuguese</item>
+<item>russian</item>
+<item>polish</item>
+-->
     </string-array>
     <string-array name="target_languages">
         <item>English</item>
         <item>Hindi</item>
         <item>Kannada</item>
         <item>Tamil</item>
-        <item>Malayalam</item>
-        <item>Telugu</item>
         <!--
-        <item>German</item>
-        <item>French</item>
-        <item>Dutch</item>
-        <item>Spanish</item>
-        <item>Italian</item>
-        <item>Portuguese</item>
-        <item>Russian</item>
-        <item>Polish</item>
-        -->
+<item>Malayalam</item>
+<item>Telugu</item>
+<item>German</item>
+<item>French</item>
+<item>Dutch</item>
+<item>Spanish</item>
+<item>Italian</item>
+<item>Portuguese</item>
+<item>Russian</item>
+<item>Polish</item>
+-->
     </string-array>
     <string-array name="target_language_codes">
         <item>eng_Latn</item>
         <item>hin_Deva</item>
         <item>kan_Knda</item>
         <item>tam_Taml</item>
-        <item>mal_Mlym</item>
-        <item>tel_Telu</item>
         <!--
-        <item>deu_Latn</item>
-        <item>fra_Latn</item>
-        <item>nld_Latn</item>
-        <item>spa_Latn</item>
-        <item>ita_Latn</item>
-        <item>por_Latn</item>
-        <item>rus_Cyrl</item>
-        <item>pol_Latn</item>
-        -->
+<item>tam_Taml</item>
+<item>mal_Mlym</item>
+<item>tel_Telu</item>
+
+<item>deu_Latn</item>
+<item>fra_Latn</item>
+<item>nld_Latn</item>
+<item>spa_Latn</item>
+<item>ita_Latn</item>
+<item>por_Latn</item>
+<item>rus_Cyrl</item>
+<item>pol_Latn</item>
+-->
     </string-array>
 </resources>

@@ -32,6 +32,8 @@ data class TranslationResponse(val translations: List<String>)
 data class VisualQueryRequest(val query: String, val src_lang: String, val tgt_lang: String)
 data class VisualQueryResponse(val answer: String)
 data class ExtractTextResponse(val page_content: String)
+data class DocumentSummaryResponse(val pages: List<Page>, val summary: String)
+data class Page(val page_number: Int, val page_text: String)
 
 interface ApiService {
     @POST("v1/token")
@@ -103,13 +105,24 @@ interface ApiService {
     suspend fun extractText(
         @Part file: MultipartBody.Part,
         @Query("page_number") pageNumber: Int,
+        @Query("language") language: String,
         @Header("Authorization") token: String,
         @Header("X-Session-Key") sessionKey: String
     ): ExtractTextResponse
+
+    @Multipart
+    @POST("v1/document_summary_v0")
+    suspend fun summarizeDocument(
+        @Part file: MultipartBody.Part,
+        @Part("src_lang") srcLang: RequestBody,
+        @Part("tgt_lang") tgtLang: RequestBody,
+        @Part("prompt") prompt: RequestBody
+    ): DocumentSummaryResponse
 }
 
 object RetrofitClient {
-    private const val BASE_URL_DEFAULT = "https://example.com/"
+    private const val BASE_URL_DEFAULT = "https://slabstech-dhwani-server-v2.hf.space/"
+    private const val SUMMARY_BASE_URL = "https://slabstech-dhwani-server-workshop.hf.space/"
     private const val GCM_TAG_LENGTH = 16
     private const val GCM_NONCE_LENGTH = 12
     private var lastAuthRefreshAttempt = 0L
@@ -184,6 +197,20 @@ object RetrofitClient {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(getOkHttpClient(context))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+
+    fun summaryApiService(): ApiService {
+        return Retrofit.Builder()
+            .baseUrl(SUMMARY_BASE_URL)
+            .client(OkHttpClient.Builder()
+                .addInterceptor(HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) })
+                .connectTimeout(600, TimeUnit.SECONDS)
+                .readTimeout(600, TimeUnit.SECONDS)
+                .writeTimeout(600, TimeUnit.SECONDS)
+                .build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

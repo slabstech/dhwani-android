@@ -89,7 +89,7 @@ class DhwaniActivity : AppCompatActivity() {
                             .setNegativeButton("No", null)
                             .show()
                         false
-                    }
+                    }/* TODO - add translate as menu view
                     R.id.nav_translate -> {
                         AlertDialog.Builder(this)
                             .setMessage("Switch to Translate?")
@@ -99,7 +99,7 @@ class DhwaniActivity : AppCompatActivity() {
                             .setNegativeButton("No", null)
                             .show()
                         false
-                    }
+                    }*/
                     R.id.nav_docs -> {
                         AlertDialog.Builder(this)
                             .setMessage("Switch to Docs?")
@@ -186,14 +186,6 @@ class DhwaniActivity : AppCompatActivity() {
             }
             1001 -> {
                 showHistoryDialog()
-                true
-            }
-            R.id.action_share -> {
-                if (transcriptionOutput.text.isNotEmpty() && transcriptionOutput.text != "Transcription will appear here...") {
-                    shareMessage(transcriptionOutput.text.toString())
-                } else {
-                    Toast.makeText(this, "No transcription to share", Toast.LENGTH_SHORT).show()
-                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
